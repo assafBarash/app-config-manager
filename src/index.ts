@@ -8,9 +8,18 @@ type AppConfigManagerState = {
   prefix: string;
 };
 
+export interface IAppConfigManager<T extends {}> {
+  setup: (initialConfig?: T) => void;
+  getConfig: () => T;
+  writeConfig: (config: Partial<T>, update?: boolean) => void;
+  removeConfigValue: (key: keyof T) => void;
+}
+
 export const AppConfigManager = <T extends {}>(
   options: Partial<AppConfigManagerState> & { appName: string }
-) => {
+): IAppConfigManager<T> => {
+  type Interface = IAppConfigManager<T>;
+
   const state: AppConfigManagerState = {
     configName: 'config.json',
     prefix: '.',
@@ -19,7 +28,7 @@ export const AppConfigManager = <T extends {}>(
 
   let config: T;
 
-  const setup = (initialConfig?: T) => {
+  const setup: Interface['setup'] = (initialConfig?) => {
     if (!isConfigDirExists()) {
       createConfigDir();
       createConfigFile(initialConfig);
@@ -49,7 +58,10 @@ export const AppConfigManager = <T extends {}>(
     return JSON.parse(fs.readFileSync(getConfigFilePath()).toString()) as T;
   };
 
-  const writeConfig = (data: Partial<T>, update = true) => {
+  const writeConfig: Interface['writeConfig'] = (
+    data: Partial<T>,
+    update = true
+  ) => {
     fs.writeFileSync(
       getConfigFilePath(),
       JSON.stringify({
@@ -60,12 +72,12 @@ export const AppConfigManager = <T extends {}>(
     config = readConfig();
   };
 
-  const getConfig = (): T => {
+  const getConfig: Interface['getConfig'] = (): T => {
     if (!config) config = readConfig();
     return config;
   };
 
-  const removeConfigValue = (key: keyof T) => {
+  const removeConfigValue: Interface['removeConfigValue'] = (key: keyof T) => {
     let tmp = readConfig();
     delete tmp[key];
     writeConfig(tmp, false);

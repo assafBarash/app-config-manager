@@ -1,12 +1,12 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { AppConfigManager } from '../src';
+import { AppConfigManager, IAppConfigManager } from '../src';
 
 type TestAppConfig = {
   someData: string;
 };
-type TestAppConfigManager = ReturnType<typeof AppConfigManager<TestAppConfig>>;
+type TestAppConfigManager = IAppConfigManager<TestAppConfig>;
 
 describe('AppConfigManager', () => {
   const appName = 'test-app';
